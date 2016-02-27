@@ -12,6 +12,11 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
+    if(params.has_key?(:sortby))
+      order=params[:sortby]
+      @movies=@movies.sort_by{|movie| movie[order]}
+      instance_variable_set("@#{order}_header_hilite", "hilite")
+    end
   end
 
   def new
@@ -41,5 +46,4 @@ class MoviesController < ApplicationController
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
   end
-
 end
