@@ -11,21 +11,37 @@ class MoviesController < ApplicationController
   end
 
   def index
+    if !params.has_key?(:ratings)
+      flash.keep
+      if params.has_key?(:commit) || !session.has_key?(:rating_filter)
+        @all_ratings = Movie.all_ratings
+        session[:rating_filter]=Hash.new(false)
+        @all_ratings.each{|rating| session[:rating_filter][rating]=true}
+      end
+      if params.has_key?(:sortby)
+        redirect_to movies_path(:ratings=>session[:rating_filter], :sortby=>params[:sortby])
+      elsif session.has_key?(:sortby)
+        redirect_to movies_path(:ratings=>session[:rating_filter], :sortby=>session[:sortby])
+      else
+        redirect_to movies_path(:ratings=>session[:rating_filter])
+      end
+    end
+    
     @movies = Movie.all
     @all_ratings = Movie.all_ratings
     @rating_filter = Hash.new(false)
+    
     if params.has_key?(:ratings)
       params[:ratings].each_key{|rating| @rating_filter[rating]=true}
       @movies=@movies.find_all{|movie| @rating_filter[movie.rating]}
-    else
-      @all_ratings.each{|rating| @rating_filter[rating]=true}
+      session[:rating_filter]=@rating_filter
     end
     
-    
-    if(params.has_key?(:sortby))
+    if params.has_key?(:sortby)
       order=params[:sortby]
       @movies=@movies.sort_by{|movie| movie[order]}
       instance_variable_set("@#{order}_header_hilite", "hilite")
+      session[:sortby]=order
     end
     
   end
