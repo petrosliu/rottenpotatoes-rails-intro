@@ -12,11 +12,22 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
+    @all_ratings = Movie.all_ratings
+    @rating_filter = Hash.new(false)
+    if params.has_key?(:ratings)
+      params[:ratings].each_key{|rating| @rating_filter[rating]=true}
+      @movies=@movies.find_all{|movie| @rating_filter[movie.rating]}
+    else
+      @all_ratings.each{|rating| @rating_filter[rating]=true}
+    end
+    
+    
     if(params.has_key?(:sortby))
       order=params[:sortby]
       @movies=@movies.sort_by{|movie| movie[order]}
       instance_variable_set("@#{order}_header_hilite", "hilite")
     end
+    
   end
 
   def new
