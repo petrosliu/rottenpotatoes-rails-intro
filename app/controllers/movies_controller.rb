@@ -17,7 +17,7 @@ class MoviesController < ApplicationController
       session[:sortby]="id"
     end
     
-    if !session.has_key?(:rating_filter) || (!params.has_key?(:ratings)&&params.has_key?(:commit))
+    if !session.has_key?(:rating_filter)
       session[:rating_filter]=Hash.new(false)
       @all_ratings.each{|rating| session[:rating_filter][rating]=true}
     end
